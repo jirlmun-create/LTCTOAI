@@ -1,0 +1,6 @@
+tk
+pyinstaller
+pymupdf
+transformers
+matplotlib
+pandas
