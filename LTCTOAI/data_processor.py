@@ -48,3 +48,65 @@ def find_pdf_files(folder_path):
 def filter_records_by_period(records, 입소일, 평가시작일, 퇴소일=None):
     # records: [{'date': 'YYYY-MM-DD', ...}, ...]
     return [r for r in records if is_in_period(r['date'], 입소일, 평가시작일, 퇴소일)]
+
+# 병렬 PDF 분석 함수 (표준 방식)
+from concurrent.futures import ProcessPoolExecutor, as_completed
+
+def analyze_pdf(pdf_path):
+    try:
+        text = extract_text_from_pdf(pdf_path)
+        # 여기서 추가 분석/구조화 로직 구현 가능
+        return {'pdf_path': pdf_path, 'text': text, 'error': None}
+    except Exception as e:
+        return {'pdf_path': pdf_path, 'text': None, 'error': str(e)}
+
+def analyze_pdfs_parallel(pdf_files, max_workers=None):
+    results = []
+    errors = []
+    with ProcessPoolExecutor(max_workers=max_workers) as executor:
+        futures = [executor.submit(analyze_pdf, f) for f in pdf_files]
+        for future in as_completed(futures):
+            result = future.result()
+            if result['error']:
+                errors.append(result)
+            else:
+                results.append(result)
+    return results, errors
+
+def evaluate_indicators(records, indicator_rules):
+    """
+    records: [{'indicator': '지표명', 'value': ..., ...}, ...]
+    indicator_rules: {'지표명': {'excellent': 기준값, 'good': 기준값, 'bad': 기준값, ...}}
+    """
+    results = {}
+    for r in records:
+        ind = r['indicator']
+        rule = indicator_rules.get(ind, {})
+        value = r.get('value')
+        if value is None:
+            grade = '해당없음'
+            reason = '데이터 없음'
+        elif value >= rule.get('excellent', float('inf')):
+            grade = '우수'
+            reason = rule.get('excellent_reason', '')
+        elif value >= rule.get('good', float('inf')):
+            grade = '양호'
+            reason = rule.get('good_reason', '')
+        elif value >= rule.get('bad', float('-inf')):
+            grade = '불량'
+            reason = rule.get('bad_reason', '')
+        else:
+            grade = '해당없음'
+            reason = '기준 미달'
+        results[ind] = {'grade': grade, 'reason': reason}
+    return results
+
+# 파일간 교차점검 및 오류 검출 함수
+# pdf_results: [{'pdf_path': ..., 'text': ..., ...}, ...]
+def cross_check_errors(pdf_results, required_keywords):
+    errors = []
+    for kw in required_keywords:
+        found = any(kw in r['text'] for r in pdf_results if r['text'])
+        if not found:
+            errors.append(f"필수 키워드 누락: {kw}")
+    return errors
