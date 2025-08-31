@@ -1,0 +1,14 @@
+{
+  "체중 변화": {
+    "excellent": 12,
+    "excellent_reason": "매월 기록 누락 없음"
+  },
+  "프로그램 참여": {
+    "excellent": 5,
+    "excellent_reason": "5회 이상 참여"
+  },
+  "투약 기록": {
+    "excellent": 10,
+    "excellent_reason": "10회 이상 투약"
+  }
+}
