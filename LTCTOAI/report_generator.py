@@ -121,6 +121,12 @@ def create_report(data, indicators, cross_errors, period_start, period_end):
     indicator_names = list(indicators.keys())
     grades = [1 if v['grade']=='우수' else 2 if v['grade']=='양호' else 3 if v['grade']=='불량' else 4 for v in indicators.values()]
     try:
+        import matplotlib
+        from matplotlib import font_manager, rc
+        font_path = "C:/Windows/Fonts/malgun.ttf"
+        if os.path.exists(font_path):
+            font_manager.fontManager.addfont(font_path)
+            rc('font', family='Malgun Gothic')
         plt.figure(figsize=(6,2))
         plt.bar(indicator_names, grades, color=['#2979ff','#4caf50','#ff9800','#e53935'])
         plt.ylim(0.5,4.5)
