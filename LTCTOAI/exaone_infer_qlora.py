@@ -4,7 +4,7 @@ import torch
 
 # QLoRA 파인튜닝 결과 폴더
 base_model = "LGAI-EXAONE/EXAONE-3.5-2.4B-Instruct"
-qlora_dir = "./exaone_qlora_result"
+qlora_dir = "exaone_qlora_result/checkpoint-21"
 
 # 1. 토크나이저/모델 로딩
 print("[1] 토크나이저 로딩 중...")
